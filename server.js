@@ -24,6 +24,31 @@ app.get("/api/hello", function (req, res) {
   res.json({greeting: 'hello API'});
 });
 
+app.get("/api", (req, res) => {
+  const date = new Date()
+  res.send({
+    "unix": Math.round(date.getTime()),
+    "utc": date.toUTCString(),
+  });
+});
+
+app.get("/api/:input", (req, res) => {
+  if (req.params.input.includes("-")) {
+    req.params.input += "T00:00:00"
+  } else {
+    req.params.input = parseInt(req.params.input)
+  }
+  try {
+    let date = new Date(req.params.input);
+
+    res.json({
+      "unix": Math.round(date.getTime()),
+      "utc": date.toUTCString(),
+    });
+  } catch (err) {
+    res.json({ error : "Invalid Date" })
+  }
+});
 
 
 // listen for requests :)
