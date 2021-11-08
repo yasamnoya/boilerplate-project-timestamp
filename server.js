@@ -27,7 +27,7 @@ app.get("/api/hello", function (req, res) {
 app.get("/api", (req, res) => {
   const date = new Date()
   res.send({
-    "unix": Math.round(date.getTime()),
+    "unix": date.getTime(),
     "utc": date.toUTCString(),
   });
 });
@@ -35,14 +35,22 @@ app.get("/api", (req, res) => {
 app.get("/api/:input", (req, res) => {
   if (req.params.input.includes("-")) {
     req.params.input += "T00:00:00"
-  } else {
+  } else if (req.params.input.includes(" ")) {
+    const re = /(\d+) (\w+) (\d+)/
+    req.params.input = req.params.input.replace(re, "$2 $1, $3 00:00:00");
+  }
+  else {
     req.params.input = parseInt(req.params.input)
   }
   try {
     let date = new Date(req.params.input);
 
+    if (date == "Invalid Date") {
+      res.json({ error : "Invalid Date" })
+    }
+
     res.json({
-      "unix": Math.round(date.getTime()),
+      "unix": date.getTime(),
       "utc": date.toUTCString(),
     });
   } catch (err) {
